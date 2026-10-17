@@ -29,8 +29,7 @@ button.primary{background:var(--accent);border-color:var(--accent);color:var(--a
 button.wide{grid-column:1/-1}
 button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .hint{color:var(--muted);font-size:13px}
-.ai-btn{background:var(--card);border:1px dashed var(--accent);color:var(--accent);margin-top:10px;width:100%}
-.ai-response{background:var(--code);border-left:3px solid var(--accent);padding:12px;margin-top:10px;border-radius:0 6px 6px 0;font-size:14px}
+.search-btn{background:var(--card);border:1px dashed var(--accent);color:var(--accent);margin-top:10px;width:100%}
 </style>
 </head>
 <body>
@@ -107,7 +106,7 @@ function render(){
     if (c.cmd) h += '<div><h4>Commands</h4><pre><code>' + esc(c.cmd) + '</code></pre></div>';
     if (c.note) h += '<div class="note"><h4>Check this</h4><p>' + esc(c.note) + '</p></div>';
     if (c.fu) h += '<div><h4>They may ask next</h4><p>' + esc(c.fu) + '</p></div>';
-    h += '<button class="ai-btn" onclick="askGemini()">💡 Explain with Gemini AI</button><div id="ai-output"></div>';
+    h += '<button class="search-btn" onclick="searchGoogle()">🔍 Search on Google & AI Mode</button>';
   } else {
     h += '<p class="hint">Say your answer out loud, then tap Show answer.</p>';
   }
@@ -133,52 +132,10 @@ function toggleBookmark(){
   render();
 }
 
-async function askGemini() {
+function searchGoogle() {
   var c = deck[pos];
-  var outputDiv = document.getElementById('ai-output');
-  outputDiv.innerHTML = '<p class="hint">Thinking...</p>';
-
-  var apiKey = sessionStorage.getItem('gemini_key');
-  if (!apiKey) {
-    apiKey = prompt("Enter your Google AI Studio Gemini API Key:");
-    if (!apiKey) { outputDiv.innerHTML = ''; return; }
-    sessionStorage.setItem('gemini_key', apiKey.trim());
-  }
-
-  try {
-    var response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + apiKey
-      },
-      body: JSON.stringify({
-        model: 'gemini-3.8-flash',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a senior Linux system administrator and technical interviewer. Provide a very short, crisp, beginner-friendly explanation or clarification for the user\'s doubt regarding the interview question.'
-          },
-          {
-            role: 'user',
-            content: 'Question: ' + c.q + '\nStandard Answer: ' + (c.say || '') + '\nExplain this simply or clarify why.'
-          }
-        ],
-        max_tokens: 150
-      })
-    });
-
-    var data = await response.json();
-    if (data.choices && data.choices.length > 0) {
-      outputDiv.innerHTML = '<div class="ai-response"><strong>Gemini Explanation:</strong><p>' + esc(data.choices[0].message.content) + '</p></div>';
-    } else {
-      // Clear bad key if unauthorized
-      sessionStorage.removeItem('gemini_key');
-      outputDiv.innerHTML = '<div class="ai-response">Error: Invalid API key or quota exceeded. Please check your key from Google AI Studio.</div>';
-    }
-  } catch (err) {
-    outputDiv.innerHTML = '<div class="ai-response">Network error connecting to Gemini API.</div>';
-  }
+  var query = encodeURIComponent(c.q);
+  window.open('https://www.google.com/search?q=' + query, '_blank');
 }
 
 showBtn.addEventListener('click', toggle);
