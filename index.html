@@ -140,9 +140,9 @@ async function askGemini() {
 
   var apiKey = sessionStorage.getItem('gemini_key');
   if (!apiKey) {
-    apiKey = prompt("Enter your Google AI Studio Gemini API Key (stored in session only):");
+    apiKey = prompt("Enter your Google AI Studio Gemini API Key:");
     if (!apiKey) { outputDiv.innerHTML = ''; return; }
-    sessionStorage.setItem('gemini_key', apiKey);
+    sessionStorage.setItem('gemini_key', apiKey.trim());
   }
 
   try {
@@ -153,7 +153,7 @@ async function askGemini() {
         'Authorization': 'Bearer ' + apiKey
       },
       body: JSON.stringify({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.8-flash',
         messages: [
           {
             role: 'system',
@@ -172,7 +172,9 @@ async function askGemini() {
     if (data.choices && data.choices.length > 0) {
       outputDiv.innerHTML = '<div class="ai-response"><strong>Gemini Explanation:</strong><p>' + esc(data.choices[0].message.content) + '</p></div>';
     } else {
-      outputDiv.innerHTML = '<div class="ai-response">Error fetching explanation. Check your Gemini API key.</div>';
+      // Clear bad key if unauthorized
+      sessionStorage.removeItem('gemini_key');
+      outputDiv.innerHTML = '<div class="ai-response">Error: Invalid API key or quota exceeded. Please check your key from Google AI Studio.</div>';
     }
   } catch (err) {
     outputDiv.innerHTML = '<div class="ai-response">Network error connecting to Gemini API.</div>';
