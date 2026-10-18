@@ -1,0 +1,15 @@
+{
+  "name": "Interview Questions Pro",
+  "short_name": "InterviewPrep",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0E1419",
+  "theme_color": "#0E1419",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
